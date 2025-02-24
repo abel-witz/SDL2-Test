@@ -19,12 +19,8 @@ void Game::Initialize()
     mystery_box_texture = IMG_LoadTexture(sdl_renderer, "mystery_box.png");
     empty_mystery_box_texture = IMG_LoadTexture(sdl_renderer, "empty_mystery_box.png");
 
-    EnterMainMenu();
+    EnterGame();
     Loop();
-}
-	
-void Game::EnterMainMenu() {
-    in_main_menu = true;
 }
 
 void Game::EnterGame()
@@ -59,7 +55,6 @@ void Game::EnterGame()
     screen1.ground_level[15] = 14;
     level_screens.push_back(screen1);
 
-    in_main_menu = false;
     screen_left_position_x = 0;
     player_position.x = 0;
     player_position.y = 20;
@@ -84,13 +79,6 @@ void Game::Loop()
 
         int screen_index = screen_left_position_x / 160;
         screen_index = std::min(screen_index, 0);
-
-
-        if (keyboard[KEY_RETURN]) {
-            if (in_main_menu) {
-                EnterGame();
-            }
-        }
 
         if (begin > next_move) {
             if (keyboard[KEY_UP]) {
@@ -123,52 +111,50 @@ void Game::Loop()
             player_position.x += screen_left_position_x - player_position.x;
         }
 
-        if (!in_main_menu) {
-            for (int i=0; i<2; i++) {
-                std::vector<Collision_Record> collision_records = level_screens[screen_index + i].collision_test(player_position);
+        for (int i=0; i<2; i++) {
+            std::vector<Collision_Record> collision_records = level_screens[screen_index + i].collision_test(player_position);
 
-                for (const Collision_Record& collision_record : collision_records) {
-                    if (collision_record.direction == DIRECTION_DOWN) {
-                        player_position.y -= player_position.y + 40 - collision_record.position;
-                        vertical_speed = 0;
-                        collision_record.entity->Destroy(*this);
-                    } else if (collision_record.direction == DIRECTION_UP) {
-                        player_position.y += collision_record.position - player_position.y;
-                        on_the_ground = true;
-                        vertical_speed = 0;
-                    } else if (collision_record.direction == DIRECTION_LEFT) {
-                        player_position.x -= player_position.x + 20 - collision_record.position;
-                    } else if (collision_record.direction == DIRECTION_RIGHT) {
-                        player_position.x += collision_record.position - player_position.x;
-                    }
+            for (const Collision_Record& collision_record : collision_records) {
+                if (collision_record.direction == DIRECTION_DOWN) {
+                    player_position.y -= player_position.y + 40 - collision_record.position;
+                    vertical_speed = 0;
+                    collision_record.entity->Destroy(*this);
+                } else if (collision_record.direction == DIRECTION_UP) {
+                    player_position.y += collision_record.position - player_position.y;
+                    on_the_ground = true;
+                    vertical_speed = 0;
+                } else if (collision_record.direction == DIRECTION_LEFT) {
+                    player_position.x -= player_position.x + 20 - collision_record.position;
+                } else if (collision_record.direction == DIRECTION_RIGHT) {
+                    player_position.x += collision_record.position - player_position.x;
                 }
             }
-
-            level_screens[screen_index].Render(*this);
-            level_screens[screen_index + 1].Render(*this);
-
-            SDL_Rect player;
-            player.w = 20;
-            player.h = 40;
-            player.x = player_position.x - screen_left_position_x;
-            player.y = 280 - 40 - player_position.y;
-
-            SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 255);
-            SDL_RenderFillRect(sdl_renderer, &player);
-
-            SDL_Color black_color = {0, 0, 0};
-            SDL_Surface* score_surface = TTF_RenderText_Solid(font, (std::string("Score: ") + std::to_string(score)).c_str(),  black_color);
-            SDL_Texture* score_texture = SDL_CreateTextureFromSurface(sdl_renderer, score_surface);
-            SDL_Rect score_rect;
-            score_rect.w = score_surface->w;
-            score_rect.h = score_surface->h;
-            score_rect.x = 5;
-            score_rect.y = 5;
-            SDL_RenderCopy(sdl_renderer, score_texture, NULL, &score_rect);
-
-            SDL_FreeSurface(score_surface);
-            SDL_DestroyTexture(score_texture);
         }
+
+        level_screens[screen_index].Render(*this);
+        level_screens[screen_index + 1].Render(*this);
+
+        SDL_Rect player;
+        player.w = 20;
+        player.h = 40;
+        player.x = player_position.x - screen_left_position_x;
+        player.y = 280 - 40 - player_position.y;
+
+        SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(sdl_renderer, &player);
+
+        SDL_Color black_color = {0, 0, 0};
+        SDL_Surface* score_surface = TTF_RenderText_Solid(font, (std::string("Score: ") + std::to_string(score)).c_str(),  black_color);
+        SDL_Texture* score_texture = SDL_CreateTextureFromSurface(sdl_renderer, score_surface);
+        SDL_Rect score_rect;
+        score_rect.w = score_surface->w;
+        score_rect.h = score_surface->h;
+        score_rect.x = 5;
+        score_rect.y = 5;
+        SDL_RenderCopy(sdl_renderer, score_texture, NULL, &score_rect);
+
+        SDL_FreeSurface(score_surface);
+        SDL_DestroyTexture(score_texture);
 
         SDL_RenderPresent(sdl_renderer);
     }
