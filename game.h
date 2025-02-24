@@ -25,7 +25,6 @@ public:
 	SDL_Texture* mystery_box_texture;
 	SDL_Texture* empty_mystery_box_texture;
 
-	bool in_main_menu;
 	Vector2D player_position;
 	int screen_left_position_x;
 	int vertical_speed = 0;
