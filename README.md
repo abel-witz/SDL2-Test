@@ -1,2 +1,2 @@
-# SDL2-Test
-This project is a simple platformer created to experiment with SDL2. It features a controllable character, basic collision detection, and a score counter.
+# Test-SDL2
+Ce projet est un jeu de plateforme simple créé pour expérimenter avec SDL2. Il comprend un personnage contrôlable, une détection de collision basique et un compteur de score.
